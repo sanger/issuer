@@ -1,0 +1,43 @@
+name: "Issuer"
+description: "A GitHub action that automatically generates issue numbers for user stories."
+inputs:
+  GITHUB_TOKEN:
+    description: "GitHub token"
+    required: true
+  ISSUE_PREFIX:
+    description: "Prefix for issue numbers"
+    required: true
+  ISSUE_COUNTER_VAR: 
+    description: "Name of the counter value org variable"
+    required: true
+  ORG_NAME: 
+    description: "Name of the organisation"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout this repository
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+
+    - name: Install dependencies
+      shell: bash
+      run: |
+        python -m pip install requests
+
+    - name: Assign issue number
+      shell: bash
+      run: python ${{ github.action_path }}/main.py    
+      env:
+        GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
+        ISSUE_PREFIX: ${{ inputs.ISSUE_PREFIX }}
+        ISSUE_COUNTER_VAR: ${{ inputs.ISSUE_counter_VAR }}
+        ORG_NAME: ${{ inputs.ORG_NAME }}
+        GITHUB_REPOSITORY: ${{ github.repository }}
+        GITHUB_EVENT_ISSUE_NUMBER: ${{ github.event.issue.number }}
+        GITHUB_EVENT_ISSUE_TITLE: ${{ github.event.issue.title }}
