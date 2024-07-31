@@ -1,0 +1,48 @@
+name: Assign Issue Number
+
+on:
+  workflow_call:
+    secrets:
+      app_id:
+        required: true
+      app_key:
+        required: true
+
+jobs:
+  assign-issue-number:
+    permissions: write-all
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout this repository
+        uses: actions/checkout@v2
+
+      - name: Set issue prefix # Current year // Y24, Y25 etc
+        run: echo "ISSUE_PREFIX=Y$(date +'%y')" >> $GITHUB_ENV
+
+      - name: Get token
+        id: get_workflow_token # Generates a token for the action
+        uses: peter-murray/workflow-application-token-action@v3
+        with:
+          application_id: ${{ secrets.app_id }}
+          application_private_key: ${{ secrets.app_key }}
+
+      - name: Check issue title
+        id: check_issue_title
+        run: |
+          ISSUE_TITLE="${{ github.event.issue.title }}"
+          if [[ "$ISSUE_TITLE" =~ ^Y[0-9]{2}-[0-9]{3,4} ]]; then
+            echo "VALID_TITLE=true" >> $GITHUB_OUTPUT
+          else
+            echo "VALID_TITLE=false" >> $GITHUB_OUTPUT
+          fi
+
+      # Updates org variable for the counter & updates the issue title
+      - name: Assign custom issue number
+        if: steps.check_issue_title.outputs.VALID_TITLE == 'false'
+        uses: sanger/psd_story_number_generator@develop
+        with:
+          GITHUB_TOKEN: ${{ steps.get_workflow_token.outputs.token }}
+          ISSUE_PREFIX: ${{ env.ISSUE_PREFIX }}
+          ISSUE_COUNTER_VAR: "ISSUE_NUMBER"
+          ORG_NAME: "sanger"
