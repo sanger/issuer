@@ -24,3 +24,6 @@ A GitHub appication with the correct permissions will be needed. During the acti
 3) Generate Story Number: The current issue number is incremented during the script to avoid conflicts as much as possible. The incremented number is then concatenated with the prefix to form the story number.
 4) Update Organisation Variable: The incremented issue number is saved back to the organisation variable.
 5) Modify Issue Title: The issue title is updated so that the generated story number prefixes the original story title.
+
+
+> Note: Any issues made in this repository will use the action in the `develop` branch for testing (there will no longer be extreme panic when the action fails and stops working across the organisation (hopefully))
