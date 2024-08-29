@@ -1,6 +1,13 @@
 import os
 import requests
+import re
 
+
+def check_issue_title(title):
+    if re.match(r'^Y[0-9]{2}-[0-9]{3,4}', title):
+        return False
+    
+    return True
 
 def get_org_variable(org, var_name, token):
     url = f"https://api.github.com/orgs/{org}/actions/variables/{var_name}"
@@ -14,7 +21,6 @@ def get_org_variable(org, var_name, token):
     response.raise_for_status()
     
     return response.json()["value"]
-    
 
 def update_org_variable(org, var_name, new_value, token):
     url = f"https://api.github.com/orgs/{org}/actions/variables/{var_name}"
@@ -47,6 +53,7 @@ def update_issue_title(repo, issue_prefix, issue_number, token, next_number, iss
     if response.status_code != 200:
         print(f"Failed to update issue title: {response.json()}")
 
+
 if __name__ == "__main__":
     github_token = os.getenv('GITHUB_TOKEN')
     repo = os.getenv('GITHUB_REPOSITORY')
@@ -56,6 +63,10 @@ if __name__ == "__main__":
     issue_number = os.getenv('GITHUB_EVENT_ISSUE_NUMBER')
     org_name = os.getenv('ORG_NAME')
     
+    if not check_issue_title(issue_title):
+        print(f"Invalid issue title: {issue_title}")
+        exit(0)
+
     issue_counter = get_org_variable(org_name, issue_counter_var, github_token)
     next_number = int(issue_counter) + 1
     update_org_variable(org_name, issue_counter_var, next_number, github_token)
