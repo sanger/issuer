@@ -6,7 +6,7 @@ on:
 
 jobs:
   call-add-to-project:
-    uses: sanger/psd_story_number_generator/.github/workflows/generate_issue_number.yml@develop
+    uses: sanger/issuer/.github/workflows/generate_issue_number.yml@develop
     secrets:
       app_id: ${{ secrets.ISSUE_GEN_APP_ID }}
       app_key: ${{ secrets.ISSUE_GEN_APP_KEY }}
